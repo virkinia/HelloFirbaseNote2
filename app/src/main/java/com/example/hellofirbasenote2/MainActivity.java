@@ -1,5 +1,6 @@
 package com.example.hellofirbasenote2;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -14,8 +15,11 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -41,8 +45,9 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         // Asociamos los elementos de la vista al código
         this.initUI();
         FirebaseApp.initializeApp(getApplicationContext());
+        this.setUpFirebase();
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+
 
 
 
@@ -137,6 +142,31 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         String currentDate = sdf.format(new Date());
 
         mDatabase.child("news").child(currentDate).setValue(note);
+    }
+
+    private void setUpFirebase() {
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
+                    if(postSnapshot.getKey().equals("news")){
+                        ArrayList<NotesModel> notesList= new ArrayList<NotesModel>();
+                        for(DataSnapshot newSnapshot: postSnapshot.getChildren()) {
+                            NotesModel note = newSnapshot.getValue(NotesModel.class);
+                            notesList.add(note);
+
+                        }
+                        mAdapter.loadData(notesList);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
 

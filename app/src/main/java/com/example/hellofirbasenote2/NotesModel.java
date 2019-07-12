@@ -2,14 +2,15 @@ package com.example.hellofirbasenote2;
 
 public class NotesModel {
     private String title;
+    private String subTitle;
 
     public NotesModel(String title, String subTitle) {
         this.title = title;
         this.subTitle = subTitle;
     }
 
-    private String subTitle;
-
+    public NotesModel() {
+    }
 
     public String getTitle() {
         return title;
