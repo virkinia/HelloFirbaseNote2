@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -15,6 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -37,18 +39,24 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
 
     DatabaseReference mDatabase;
 
+    private FirebaseAuth mAuth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         // Asociamos los elementos de la vista al código
         this.initUI();
         FirebaseApp.initializeApp(getApplicationContext());
+
+        mAuth = FirebaseAuth.getInstance();
+        //mAuth.getCurrentUser();
         this.setUpFirebase();
 
 
-        // Datos del shared
+        // Datos de Firabase
         ArrayList<NotesModel> noteLists = new ArrayList<NotesModel>();
 
         mAdapter = new NoteAdapter(noteLists);
@@ -123,6 +131,12 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
             case R.id.buttonMove :
 
 
+                mAuth.signOut();
+                mDatabase.onDisconnect();
+                Intent intent = new Intent(getBaseContext(), LoginActivity.class);
+                startActivity(intent);
+
+
                 break;
             case R.id.buttonDelete :
                 mAdapter.deleteNote();
@@ -140,7 +154,9 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     }
 
     private void setUpFirebase() {
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+
+        mDatabase = FirebaseDatabase.getInstance().getReference(mAuth.getUid());
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
