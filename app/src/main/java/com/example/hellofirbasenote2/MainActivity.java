@@ -48,10 +48,6 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         this.setUpFirebase();
 
 
-
-
-
-
         // Datos del shared
         ArrayList<NotesModel> noteLists = new ArrayList<NotesModel>();
 
@@ -117,11 +113,10 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 Log.e("Botón Add", "button ADD");
 
 
-
                 NotesModel note = new NotesModel(etTitle.getText().toString(), etSubtitle.getText().toString());
                 mAdapter.addNote(note, 0);
                 publicarNuevaNoticia(note);
-                ///mAdapter.notifyDataSetChanged();
+                //mAdapter.notifyDataSetChanged();
 
 
                 break;
@@ -158,6 +153,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
 
                         }
                         mAdapter.loadData(notesList);
+                        mAdapter.notifyDataSetChanged();
                     }
                 }
             }
