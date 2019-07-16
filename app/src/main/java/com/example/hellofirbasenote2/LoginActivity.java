@@ -90,6 +90,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mAuth = FirebaseAuth.getInstance();
 
 
+
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
@@ -149,11 +150,17 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null) {
-            Intent intent = new Intent(getBaseContext(), MainActivity.class);
-            startActivity(intent);
+        String value = getIntent().getStringExtra("signOut");
+
+
+        if(value != null && value.equalsIgnoreCase("salir")) {
+            mAuth = FirebaseAuth.getInstance();
+            mAuth.signOut();
         }
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        boolean success = currentUser == null ? false : true;
+        updateUI(success);
 
     }
 
@@ -375,22 +382,26 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             if(mode == 0) { // SIGN IN
 
                 signWithEmail(mEmail, mPassword);
-                return true;
+
 
             } else {
                 registerNewAccount(mEmail, mPassword);
 
-                return true;
+
+
             }
 
-           /*  try {
+
+
+           try {
                 // Simulate network access.
-                Thread.sleep(2000);
+                Thread.sleep(3000);
+                return true;
             } catch (InterruptedException e) {
                 return false;
             }
 
-           for (String credential : DUMMY_CREDENTIALS) {
+           /*  for (String credential : DUMMY_CREDENTIALS) {
                 String[] pieces = credential.split(":");
                 if (pieces[0].equals(mEmail)) {
                     // Account exists, return true if the password matches.
@@ -433,16 +444,16 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("LOGIN", "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            //updateUI(user);
 
-                            Intent intent = new Intent(getBaseContext(), MainActivity.class);
-                            startActivity(intent);
+                            boolean success = user == null ? false : true;
+                            updateUI(success);
+
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w("LOGIN", "createUserWithEmail:failure", task.getException());
                             Toast.makeText(getApplicationContext(), "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
-                            //updateUI(null);
+                            updateUI(false);
 
                         }
 
@@ -461,20 +472,37 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             Log.d("LOGIN", "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
 
-                            Intent intent = new Intent(getBaseContext(), MainActivity.class);
-                            startActivity(intent);
-                          //  updateUI(user);
+                            boolean success = user == null ? false : true;
+                            updateUI(success);
+
+                            //  updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w("LOGIN", "signInWithEmail:failure", task.getException());
                             Toast.makeText(getApplicationContext(), "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
-                           // updateUI(null);
+                            updateUI(false);
                         }
 
 
                     }
                 });
+    }
+
+
+    private void updateUI( boolean success) {
+        if (success) {
+
+            Intent intent = new Intent(getBaseContext(), MainActivity.class);
+            intent.putExtra("firebase_user_id", mAuth.getUid());
+            startActivity(intent);
+
+        } else {
+
+            Toast.makeText(getApplicationContext(), "Authentication failed.",
+                    Toast.LENGTH_SHORT).show();
+
+        }
     }
 }
 

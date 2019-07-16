@@ -39,7 +39,8 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
 
     DatabaseReference mDatabase;
 
-    private FirebaseAuth mAuth;
+    private String userId;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,8 +52,10 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         this.initUI();
         FirebaseApp.initializeApp(getApplicationContext());
 
-        mAuth = FirebaseAuth.getInstance();
+
         //mAuth.getCurrentUser();
+
+        userId = getIntent().getExtras().getString("firebase_user_id");
         this.setUpFirebase();
 
 
@@ -130,10 +133,9 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 break;
             case R.id.buttonMove :
 
-
-                mAuth.signOut();
                 mDatabase.onDisconnect();
                 Intent intent = new Intent(getBaseContext(), LoginActivity.class);
+                intent.putExtra("signOut", "salir");
                 startActivity(intent);
 
 
@@ -156,7 +158,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     private void setUpFirebase() {
 
 
-        mDatabase = FirebaseDatabase.getInstance().getReference(mAuth.getUid());
+        mDatabase = FirebaseDatabase.getInstance().getReference(userId);
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
